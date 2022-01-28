@@ -68,7 +68,7 @@ public class Client {
             table.setItems(items);
 
         } catch (Exception ec) {
-            welcomeText.setText("Error connectiong to server:" + ec);
+            welcomeText.setText("Error connectiong to server:" + ec.toString());
         }
     }
 
