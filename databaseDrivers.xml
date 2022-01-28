@@ -1,0 +1,8 @@
+<application>
+  <component name="LocalDatabaseDriverManager" version="201">
+    <driver id="postgresql">
+      <artifact id="PostgreSQL" name="PostgreSQL" use="true" version="42.2.22" />
+    </driver>
+    <driver id="java.sql.Driver" name="User Driver" driver-class="java.sql.Driver" />
+  </component>
+</application>
