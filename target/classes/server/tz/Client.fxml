@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="server.tz.Client">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
+    <TableView fx:id="table">
+        <columns>
+            <TableColumn text="Договор ID" fx:id="dogovorId" prefWidth="270"/>
+            <TableColumn text="Номер договора" fx:id="dogNo" prefWidth="150"/>
+            <TableColumn text="Дата договора" fx:id="dogDate" prefWidth="200"/>
+            <TableColumn text="Дата изменения" fx:id="updateTime" prefWidth="200"/>
+            <TableColumn text="Актуальность" fx:id="check" prefWidth="130"/>
+        </columns>
+    </TableView>
+    <Button text="Получить данные" onAction="#onHelloButtonClick"/>
+    <Label fx:id="welcomeText"/>
+</VBox>
