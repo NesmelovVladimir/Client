@@ -15,7 +15,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="TZ" options="" />
+      <module name="TZ" options="--add-exports java.xml/com.sun.org.apache.xpath.internal=server.tz" />
     </option>
   </component>
 </project>

@@ -4,10 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.postgis.MultiPolygon;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -43,12 +45,21 @@ public class Client {
     private TableColumn<Dogovor, Timestamp> check;
 
     @FXML
+    private TableColumn<Dogovor, String> coordinates;
+
+    @FXML
+    private TableColumn<Dogovor, MultiPolygon> polygon;
+
+
+    @FXML
     protected void onHelloButtonClick() {
         dogovorId.setCellValueFactory(new PropertyValueFactory<>("dogovorId"));
         dogNo.setCellValueFactory(new PropertyValueFactory<>("dogNo"));
         dogDate.setCellValueFactory(new PropertyValueFactory<>("dogDate"));
         updateTime.setCellValueFactory(new PropertyValueFactory<>("updateTime"));
         check.setCellValueFactory(new PropertyValueFactory<>("check"));
+        coordinates.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
+        polygon.setCellValueFactory(new PropertyValueFactory<>("polygon"));
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();

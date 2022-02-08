@@ -18,6 +18,8 @@
             <TableColumn text="Дата договора" fx:id="dogDate" prefWidth="200"/>
             <TableColumn text="Дата изменения" fx:id="updateTime" prefWidth="200"/>
             <TableColumn text="Актуальность" fx:id="check" prefWidth="130"/>
+            <TableColumn text="Координаты" fx:id="coordinates" prefWidth="130"/>
+            <TableColumn text="Полигон" fx:id="polygon" prefWidth="130"/>
         </columns>
     </TableView>
     <Button text="Получить данные" onAction="#onHelloButtonClick"/>
