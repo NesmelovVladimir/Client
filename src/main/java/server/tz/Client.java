@@ -63,7 +63,7 @@ public class Client {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            URL url = new URL("http://localhost:8089/");
+            URL url = new URL("http://localhost:8091/");
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
             urlConnection.setRequestMethod("GET");
