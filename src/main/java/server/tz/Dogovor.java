@@ -1,10 +1,7 @@
 package server.tz;
 
 import javafx.scene.control.CheckBox;
-import org.postgis.LinearRing;
-import org.postgis.MultiPolygon;
-import org.postgis.Point;
-import org.postgis.Polygon;
+import org.postgis.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -36,7 +33,7 @@ public class Dogovor implements Serializable {
     private boolean check;
     private CheckBox checkBox;
     private String coordinates;
-    private MultiPolygon polygon;
+    private MultiPolygon geom;
 
     public Dogovor() {
     }
@@ -81,8 +78,11 @@ public class Dogovor implements Serializable {
         this.coordinates = coordinates;
     }
 
-    public MultiPolygon getPolygon() throws XPathExpressionException, TransformerException, IOException, SAXException, ParserConfigurationException {
+    public MultiPolygon getGeom() {
+        return geom;
+    }
 
+    public void setGeom(MultiPolygon geom) throws XPathExpressionException, TransformerException, IOException, SAXException, ParserConfigurationException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
         builder = factory.newDocumentBuilder();
@@ -90,12 +90,8 @@ public class Dogovor implements Serializable {
 
         List<List<LatLng>> result;
         result = transformFromXmlToWgs(document);
-        polygon = convetToGeometry(result);
-        return polygon;
-    }
-
-    public void setPolygon(MultiPolygon polygon) {
-        this.polygon = polygon;
+        geom = convetToGeometry(result);
+        this.geom = geom;
     }
 
     public CheckBox getCheck() {

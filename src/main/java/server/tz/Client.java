@@ -22,6 +22,7 @@ import java.util.UUID;
 public class Client {
 
     ObservableList<Dogovor> items = FXCollections.observableArrayList();
+    public List<Dogovor> dogovors;
 
     @FXML
     private Label welcomeText;
@@ -48,22 +49,22 @@ public class Client {
     private TableColumn<Dogovor, String> coordinates;
 
     @FXML
-    private TableColumn<Dogovor, MultiPolygon> polygon;
+    private TableColumn<Dogovor, MultiPolygon> geom;
 
 
     @FXML
-    protected void onHelloButtonClick() {
+    protected void onButtonClickGet() {
         dogovorId.setCellValueFactory(new PropertyValueFactory<>("dogovorId"));
         dogNo.setCellValueFactory(new PropertyValueFactory<>("dogNo"));
         dogDate.setCellValueFactory(new PropertyValueFactory<>("dogDate"));
         updateTime.setCellValueFactory(new PropertyValueFactory<>("updateTime"));
         check.setCellValueFactory(new PropertyValueFactory<>("check"));
         coordinates.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
-        polygon.setCellValueFactory(new PropertyValueFactory<>("polygon"));
+        geom.setCellValueFactory(new PropertyValueFactory<>("geom"));
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            URL url = new URL("http://localhost:8091/");
+            URL url = new URL("http://localhost:8089/");
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
             urlConnection.setRequestMethod("GET");
@@ -73,7 +74,7 @@ public class Client {
             TypeReference<List<Dogovor>> dogovorsType = new TypeReference<>() {
             };
 
-            List<Dogovor> dogovors = objectMapper.readValue(result, dogovorsType);
+            dogovors = objectMapper.readValue(result, dogovorsType);
             items.addAll(dogovors);
 
             table.setItems(items);
@@ -82,7 +83,24 @@ public class Client {
             welcomeText.setText("Error connectiong to server:" + ec.toString());
         }
     }
-
+    @FXML
+    protected void onButtonClickUpdate() {
+       /* try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            URL url = new URL("http://localhost:8089/"+dogovors.get(0).getDogovorId().toString());
+            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+            httpCon.setDoOutput(true);
+            httpCon.setRequestMethod("PUT");
+            OutputStreamWriter out = new OutputStreamWriter(
+                    httpCon.getOutputStream());
+            JsonGenerator jsonGenerator = null;
+            out.write(objectMapper.writeValue(jsonGenerator,dogovors.get(0)));
+            out.close();
+            httpCon.getInputStream();
+        } catch (Exception e) {
+            welcomeText.setText("Error connectiong to server:" + e.toString());
+        }*/
+    }
 }
 
 
