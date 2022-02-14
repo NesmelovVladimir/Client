@@ -1,73 +1,39 @@
 package server.tz;
 
-import javafx.scene.control.CheckBox;
 import org.postgis.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-public class Dogovor implements Serializable {
-    private UUID dogovorId;
-    private String dogNo;
-    private Timestamp dogDate;
-    private Timestamp updateTime;
-    private boolean check;
-    private CheckBox checkBox;
+public class Robject implements Serializable {
+    private UUID objectId;
     private String coordinates;
     private MultiPolygon geom;
 
-    public Dogovor() {
+
+    public Robject() {
     }
 
-    public UUID getDogovorId() {
-        return dogovorId;
+    public UUID getObjectId() {
+        return objectId;
     }
 
-    public void setDogovorId(UUID dogovorId) {
-        this.dogovorId = dogovorId;
-    }
-
-    public String getDogNo() {
-        return dogNo;
-    }
-
-    public void setDogNo(String dogNo) {
-        this.dogNo = dogNo;
-    }
-
-    public Timestamp getDogDate() {
-        return dogDate;
-    }
-
-    public void setDogDate(Timestamp dogDate) {
-        this.dogDate = dogDate;
-    }
-
-    public Timestamp getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Timestamp updateTime) {
-        this.updateTime = updateTime;
+    public void setObjectId(UUID objectId) {
+        this.objectId = objectId;
     }
 
     public String getCoordinates() {
@@ -78,45 +44,38 @@ public class Dogovor implements Serializable {
         this.coordinates = coordinates;
     }
 
-    public MultiPolygon getGeom() {
-        return geom;
+    public String getGeom() {
+        String geometry = geom.toString();
+        return geometry;
     }
 
-    public void setGeom(MultiPolygon geom) throws XPathExpressionException, TransformerException, IOException, SAXException, ParserConfigurationException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
-        builder = factory.newDocumentBuilder();
-        Document document = builder.parse(new InputSource(new StringReader(coordinates)));
+    public void setGeom(MultiPolygon geom) {
+        
+        Document document = null;
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder;
+            builder = factory.newDocumentBuilder();
+            document = builder.parse(new InputSource(new StringReader(coordinates)));
+        } catch (Exception ec) {
+            System.out.println(ec.getMessage());
+        }
 
-        List<List<LatLng>> result;
-        result = transformFromXmlToWgs(document);
-        geom = convetToGeometry(result);
+        try {
+            List<List<LatLng>> result;
+            result = transformFromXmlToWgs(document);
+            geom = convetToGeometry(result);
+        } catch (Exception ec) {
+            System.out.println(ec.getMessage());
+        }
         this.geom = geom;
     }
 
-    public CheckBox getCheck() {
-        checkBox = new CheckBox();
-        checkBox.selectedProperty().setValue(checkActulalDate());
-        return checkBox;
-    }
-
-    public void setCheck(boolean check) {
-        this.check = check;
-    }
-
-    public boolean checkActulalDate() {
-        long updateTimeEpoch = updateTime.toInstant().getEpochSecond();
-        long currentTimeEpoch = System.currentTimeMillis() / 1000;
-        long difference = currentTimeEpoch - updateTimeEpoch;
-        return difference < 5184000L;
-    }
-
-
     public static List<List<LatLng>> transformFromXmlToWgs(Node root)
-            throws XPathExpressionException, TransformerException {
+            throws XPathExpressionException {
         List<List<LatLng>> result = new ArrayList<>();
 
-        Node outline = selectSingleNode(root,"КоординатыУчастка/Контур");
+        Node outline = selectSingleNode(root, "КоординатыУчастка/Контур");
 
         for (int i = 0; i < outline.getChildNodes().getLength(); i++) {
             Node outlineElement = outline.getChildNodes().item(i);
@@ -144,7 +103,7 @@ public class Dogovor implements Serializable {
     }
 
 
-    public static org.postgis.MultiPolygon convetToGeometry(List<List<LatLng>> contours) {
+    public static MultiPolygon convetToGeometry(List<List<LatLng>> contours) {
         List<Polygon> geometries = new ArrayList<>();
         for (List<LatLng> contur : contours) {
             List<org.postgis.Point> points = new ArrayList<>();
@@ -174,9 +133,9 @@ public class Dogovor implements Serializable {
     }
 
 
-    private static org.postgis.Polygon createPolygin(List<org.postgis.Point> points) {
+    private static Polygon createPolygin(List<org.postgis.Point> points) {
         Point[] pointsArr = points.stream().toArray(Point[]::new);
-        org.postgis.Polygon geo = new org.postgis.Polygon(
+        Polygon geo = new org.postgis.Polygon(
                 new LinearRing[]{
                         new LinearRing(pointsArr)
                 }
@@ -187,16 +146,7 @@ public class Dogovor implements Serializable {
     private static Node selectSingleNode(Node node, String xpath) throws XPathExpressionException {
         XPath xPath = XPathFactory.newInstance().newXPath();
 
-        return ((NodeList) xPath.evaluate(xpath,
-                node, XPathConstants.NODESET)).item(0);
+        return ((NodeList) xPath.evaluate(xpath, node, XPathConstants.NODESET)).item(0);
     }
-
-
-
-    /*public void updateGeometryFromCoordinates(UUID elementId, List<List<LatLng>> conturs) throws SQLException {
-        org.postgis.Geometry geometry = Geometry.convetToGeometry(conturs);
-        getDb().executeScript(String.format("update ROBJECT SET geom=ST_GeomFromText('%1$s', 4326) " +
-                "WHERE object_id= %2$s ", geometry, getDb().getQueryValue(elementId)));
-    }*/
 }
 

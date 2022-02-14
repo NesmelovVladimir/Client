@@ -13,52 +13,36 @@ import org.postgis.MultiPolygon;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
 public class Client {
 
-    ObservableList<Dogovor> items = FXCollections.observableArrayList();
-    public List<Dogovor> dogovors;
+    ObservableList<Robject> items = FXCollections.observableArrayList();
+    public List<Robject> robjects;
 
     @FXML
-    private Label welcomeText;
+    private Label Text;
 
     @FXML
-    private TableView<Dogovor> table;
+    private TableView<Robject> table;
 
     @FXML
-    private TableColumn<Dogovor, UUID> dogovorId;
+    private TableColumn<Robject, UUID> objectId;
 
     @FXML
-    private TableColumn<Dogovor, String> dogNo;
+    private TableColumn<Robject, String> coordinates;
 
     @FXML
-    private TableColumn<Dogovor, Timestamp> dogDate;
-
-    @FXML
-    private TableColumn<Dogovor, Timestamp> updateTime;
-
-    @FXML
-    private TableColumn<Dogovor, Timestamp> check;
-
-    @FXML
-    private TableColumn<Dogovor, String> coordinates;
-
-    @FXML
-    private TableColumn<Dogovor, MultiPolygon> geom;
+    private TableColumn<Robject, MultiPolygon> geom;
 
 
     @FXML
     protected void onButtonClickGet() {
-        dogovorId.setCellValueFactory(new PropertyValueFactory<>("dogovorId"));
-        dogNo.setCellValueFactory(new PropertyValueFactory<>("dogNo"));
-        dogDate.setCellValueFactory(new PropertyValueFactory<>("dogDate"));
-        updateTime.setCellValueFactory(new PropertyValueFactory<>("updateTime"));
-        check.setCellValueFactory(new PropertyValueFactory<>("check"));
+        objectId.setCellValueFactory(new PropertyValueFactory<>("objectId"));
         coordinates.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
         geom.setCellValueFactory(new PropertyValueFactory<>("geom"));
 
@@ -71,35 +55,38 @@ public class Client {
             BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
             String result = reader.readLine();
 
-            TypeReference<List<Dogovor>> dogovorsType = new TypeReference<>() {
+            TypeReference<List<Robject>> robjectType = new TypeReference<>() {
             };
 
-            dogovors = objectMapper.readValue(result, dogovorsType);
-            items.addAll(dogovors);
+            robjects = objectMapper.readValue(result, robjectType);
+            items.addAll(robjects);
 
             table.setItems(items);
 
         } catch (Exception ec) {
-            welcomeText.setText("Error connectiong to server:" + ec.toString());
+            Text.setText("Error connectiong to server:" + ec.toString());
         }
     }
+
     @FXML
     protected void onButtonClickUpdate() {
-       /* try {
+        try {
             ObjectMapper objectMapper = new ObjectMapper();
-            URL url = new URL("http://localhost:8089/"+dogovors.get(0).getDogovorId().toString());
-            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
-            httpCon.setDoOutput(true);
-            httpCon.setRequestMethod("PUT");
-            OutputStreamWriter out = new OutputStreamWriter(
-                    httpCon.getOutputStream());
-            JsonGenerator jsonGenerator = null;
-            out.write(objectMapper.writeValue(jsonGenerator,dogovors.get(0)));
-            out.close();
-            httpCon.getInputStream();
+            for (int i = 0; i < robjects.size();i++) {
+                URL url = new URL("http://localhost:8089/" + robjects.get(i).getObjectId().toString());
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setDoOutput(true);
+                urlConnection.setRequestMethod("PUT");
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(urlConnection.getOutputStream());
+                String object = objectMapper.writeValueAsString(robjects.get(i));
+                outputStreamWriter.write(object);
+                outputStreamWriter.close();
+                urlConnection.getInputStream();
+            }
         } catch (Exception e) {
-            welcomeText.setText("Error connectiong to server:" + e.toString());
-        }*/
+            Text.setText("Error connectiong to server:" + e.toString());
+        }
     }
 }
 

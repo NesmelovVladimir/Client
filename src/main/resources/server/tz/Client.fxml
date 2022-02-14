@@ -13,16 +13,12 @@
     </padding>
     <TableView fx:id="table">
         <columns>
-            <TableColumn text="Договор ID" fx:id="dogovorId" prefWidth="270"/>
-            <TableColumn text="Номер договора" fx:id="dogNo" prefWidth="150"/>
-            <TableColumn text="Дата договора" fx:id="dogDate" prefWidth="200"/>
-            <TableColumn text="Дата изменения" fx:id="updateTime" prefWidth="200"/>
-            <TableColumn text="Актуальность" fx:id="check" prefWidth="130"/>
-            <TableColumn text="Координаты" fx:id="coordinates" prefWidth="130"/>
-            <TableColumn text="Полигон" fx:id="geom" prefWidth="130"/>
+            <TableColumn text="Договор ID" fx:id="objectId" prefWidth="270"/>
+            <TableColumn text="Координаты" fx:id="coordinates" prefWidth="300"/>
+            <TableColumn text="Полигон" fx:id="geom" prefWidth="500"/>
         </columns>
     </TableView>
     <Button text="Получить данные" onAction="#onButtonClickGet"/>
     <Button text="Отправить данные" onAction="#onButtonClickUpdate"/>
-    <Label fx:id="welcomeText"/>
+    <Label fx:id="Text"/>
 </VBox>
