@@ -83,6 +83,10 @@ public class Client {
                 outputStreamWriter.write(object);
                 outputStreamWriter.close();
                 urlConnection.getInputStream();
+                if (urlConnection.getResponseCode() == 200)
+                {
+                    Text.setText("Полигоны успешно загружены");
+                }
             }
         } catch (Exception e) {
             Text.setText("Error connectiong to server:" + e.toString());
