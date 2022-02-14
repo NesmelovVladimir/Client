@@ -50,7 +50,7 @@ public class Robject implements Serializable {
     }
 
     public void setGeom(MultiPolygon geom) {
-        
+
         Document document = null;
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

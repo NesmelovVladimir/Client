@@ -72,7 +72,7 @@ public class Client {
     protected void onButtonClickUpdate() {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            for (int i = 0; i < robjects.size();i++) {
+            for (int i = 0; i < robjects.size(); i++) {
                 URL url = new URL("http://localhost:8089/" + robjects.get(i).getObjectId().toString());
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setDoOutput(true);
@@ -83,8 +83,7 @@ public class Client {
                 outputStreamWriter.write(object);
                 outputStreamWriter.close();
                 urlConnection.getInputStream();
-                if (urlConnection.getResponseCode() == 200)
-                {
+                if (urlConnection.getResponseCode() == 200) {
                     Text.setText("Полигоны успешно загружены");
                 }
             }
