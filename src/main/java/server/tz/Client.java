@@ -48,7 +48,7 @@ public class Client {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            URL url = new URL("http://localhost:8089/");
+            URL url = new URL("http://localhost:8091/");
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
             urlConnection.setRequestMethod("GET");
@@ -73,7 +73,7 @@ public class Client {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             for (int i = 0; i < robjects.size(); i++) {
-                URL url = new URL("http://localhost:8089/" + robjects.get(i).getObjectId().toString());
+                URL url = new URL("http://localhost:8091/" + robjects.get(i).getObjectId().toString());
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setDoOutput(true);
                 urlConnection.setRequestMethod("PUT");
