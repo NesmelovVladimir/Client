@@ -5,13 +5,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -23,7 +26,6 @@ public class Robject implements Serializable {
     private UUID objectId;
     private String coordinates;
     private MultiPolygon geom;
-    public static String errors;
 
     public Robject() {
     }
@@ -54,21 +56,16 @@ public class Robject implements Serializable {
         return geometry;
     }
 
-    public void setGeom(MultiPolygon geom) {
+    public void setGeom(MultiPolygon geom) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
 
-        Document document = null;
-        try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder;
             builder = factory.newDocumentBuilder();
-            document = builder.parse(new InputSource(new StringReader(coordinates)));
+            Document document = builder.parse(new InputSource(new StringReader(coordinates)));
             List<List<LatLng>> result;
             result = transformFromXmlToWgs(document);
             geom = convetToGeometry(result);
-        } catch (Exception ec) {
-            geom = null;
-        }
-        this.geom = geom;
+            this.geom = geom;
     }
 
     public static List<List<LatLng>> transformFromXmlToWgs(Node root)

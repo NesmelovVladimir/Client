@@ -1,6 +1,5 @@
 package server.tz;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,11 +10,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.postgis.MultiPolygon;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -24,6 +20,7 @@ public class Client {
 
     ObservableList<Robject> items = FXCollections.observableArrayList();
     public List<Robject> robjects;
+    public Db db = new Db();
 
     @FXML
     private Label Text;
@@ -43,59 +40,45 @@ public class Client {
 
     @FXML
     protected void onButtonClickGet() {
+        for (int i = 0; i < table.getItems().size(); i++) {
+            table.getItems().clear();
+        }
         objectId.setCellValueFactory(new PropertyValueFactory<>("objectId"));
         coordinates.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
         geom.setCellValueFactory(new PropertyValueFactory<>("geom"));
 
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            URL url = new URL("http://localhost:8091/");
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-
-            urlConnection.setRequestMethod("GET");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            String result = reader.readLine();
-
-            TypeReference<List<Robject>> robjectType = new TypeReference<>() {
-            };
-
-            robjects = objectMapper.readValue(result, robjectType);
+            robjects = db.getConnect();
             items.addAll(robjects);
-
             table.setItems(items);
-
-        } catch (Exception ec) {
-            Text.setText("Error connectiong to server:" + ec);
+        } catch (Exception e) {
+            Text.setText("Ошибка при получении данных из базы:" + e);
         }
     }
 
     @FXML
-    protected void onButtonClickUpdate() {
+    protected void onButtonClickUpdate() throws IOException {
         String errors = "";
         Integer countErrors = 0;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             for (int i = 0; i < robjects.size(); i++) {
                 if (!Objects.equals(robjects.get(i).getGeom(), "")) {
-                    URL url = new URL("http://localhost:8091/" + robjects.get(i).getObjectId().toString());
-                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setDoOutput(true);
-                    urlConnection.setRequestMethod("PUT");
-                    urlConnection.setRequestProperty("Content-Type", "application/json");
-                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(urlConnection.getOutputStream());
-                    String object = objectMapper.writeValueAsString(robjects.get(i));
-                    outputStreamWriter.write(object);
-                    outputStreamWriter.close();
-                    urlConnection.getInputStream();
+                    db.updateGeometry(robjects.get(i).getObjectId(), robjects.get(i).getGeom());
                 } else {
                     countErrors++;
                     errors = errors + "'" + robjects.get(i).getObjectId().toString() + "'; \n";
                 }
             }
         } catch (Exception e) {
-            Text.setText("Error connectiong to server:" + e);
+            Text.setText("Ошибка отправки данных:" + e);
         }
-        Text.setText("Полигоны успешно загружены\nОшибочные объекты: " + errors);
+        if (countErrors > 0) {
+            FileWriter writer = new FileWriter("log.txt");
+            writer.write(errors);
+            writer.flush();
+        }
+        Text.setText("Полигоны успешно загружены\nОшибочных объекты: " + countErrors);
     }
 }
 
