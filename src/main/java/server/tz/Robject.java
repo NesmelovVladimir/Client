@@ -23,7 +23,7 @@ public class Robject implements Serializable {
     private UUID objectId;
     private String coordinates;
     private MultiPolygon geom;
-
+    public static String errors;
 
     public Robject() {
     }
@@ -45,7 +45,12 @@ public class Robject implements Serializable {
     }
 
     public String getGeom() {
-        String geometry = geom.toString();
+        String geometry;
+        if (geom==null) {
+            geometry = "";
+        } else {
+            geometry = geom.toString();
+        }
         return geometry;
     }
 
@@ -57,16 +62,11 @@ public class Robject implements Serializable {
             DocumentBuilder builder;
             builder = factory.newDocumentBuilder();
             document = builder.parse(new InputSource(new StringReader(coordinates)));
-        } catch (Exception ec) {
-            System.out.println(ec.getMessage());
-        }
-
-        try {
             List<List<LatLng>> result;
             result = transformFromXmlToWgs(document);
             geom = convetToGeometry(result);
         } catch (Exception ec) {
-            System.out.println(ec.getMessage());
+            geom = null;
         }
         this.geom = geom;
     }

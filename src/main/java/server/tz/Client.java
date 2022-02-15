@@ -16,7 +16,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Client {
@@ -64,32 +66,37 @@ public class Client {
             table.setItems(items);
 
         } catch (Exception ec) {
-            Text.setText("Error connectiong to server:" + ec.toString());
+            Text.setText("Error connectiong to server:" + ec);
         }
     }
 
     @FXML
     protected void onButtonClickUpdate() {
+        String errors = "";
+        Integer countErrors = 0;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             for (int i = 0; i < robjects.size(); i++) {
-                URL url = new URL("http://localhost:8091/" + robjects.get(i).getObjectId().toString());
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setDoOutput(true);
-                urlConnection.setRequestMethod("PUT");
-                urlConnection.setRequestProperty("Content-Type", "application/json");
-                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(urlConnection.getOutputStream());
-                String object = objectMapper.writeValueAsString(robjects.get(i));
-                outputStreamWriter.write(object);
-                outputStreamWriter.close();
-                urlConnection.getInputStream();
-                if (urlConnection.getResponseCode() == 200) {
-                    Text.setText("Полигоны успешно загружены");
+                if (!Objects.equals(robjects.get(i).getGeom(), "")) {
+                    URL url = new URL("http://localhost:8091/" + robjects.get(i).getObjectId().toString());
+                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setDoOutput(true);
+                    urlConnection.setRequestMethod("PUT");
+                    urlConnection.setRequestProperty("Content-Type", "application/json");
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(urlConnection.getOutputStream());
+                    String object = objectMapper.writeValueAsString(robjects.get(i));
+                    outputStreamWriter.write(object);
+                    outputStreamWriter.close();
+                    urlConnection.getInputStream();
+                } else {
+                    countErrors++;
+                    errors = errors + "'" + robjects.get(i).getObjectId().toString() + "'; \n";
                 }
             }
         } catch (Exception e) {
-            Text.setText("Error connectiong to server:" + e.toString());
+            Text.setText("Error connectiong to server:" + e);
         }
+        Text.setText("Полигоны успешно загружены\nОшибочные объекты: " + errors);
     }
 }
 
