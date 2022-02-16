@@ -23,7 +23,7 @@ public class Db {
         Connection connection = connect();
         Statement statement = connection.createStatement();
 
-        resultSet = statement.executeQuery("SELECT object_id, coordinates, ST_AsText(geom) as geom FROM robject WHERE coordinates is not null");
+        resultSet = statement.executeQuery("SELECT object_id, coordinates, ST_AsText(geom) as geom FROM robject WHERE coordinates is not null limit 10");
         while (resultSet.next()) {
             Robject robject = new Robject();
             robject.setObjectId(UUID.fromString(resultSet.getString("object_id")));
@@ -32,7 +32,7 @@ public class Db {
                 robject.setGeom(new MultiPolygon(resultSet.getString("geom")));
             }
             catch (Exception e) {
-                throw new Exception("Ошибка при создании геометрии: "+e);
+                robject.setGeom(null);
             }
             robjects.add(robject);
         }

@@ -14,6 +14,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -48,7 +49,7 @@ public class Robject implements Serializable {
 
     public String getGeom() {
         String geometry;
-        if (geom==null) {
+        if (geom == null) {
             geometry = "";
         } else {
             geometry = geom.toString();
@@ -56,8 +57,9 @@ public class Robject implements Serializable {
         return geometry;
     }
 
-    public void setGeom(MultiPolygon geom) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
+    public void setGeom(MultiPolygon geom) {
 
+        try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder;
             builder = factory.newDocumentBuilder();
@@ -65,7 +67,9 @@ public class Robject implements Serializable {
             List<List<LatLng>> result;
             result = transformFromXmlToWgs(document);
             geom = convetToGeometry(result);
-            this.geom = geom;
+        } catch (Exception ec) {
+        }
+        this.geom = geom;
     }
 
     public static List<List<LatLng>> transformFromXmlToWgs(Node root)

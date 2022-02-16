@@ -52,8 +52,9 @@ public class Client {
             items.addAll(robjects);
             table.setItems(items);
         } catch (Exception e) {
-            Text.setText("Ошибка при получении данных из базы\n"+e);
+            Text.setText("Ошибка при получении данных из базы\n" + e);
         }
+
     }
 
     @FXML
@@ -78,7 +79,7 @@ public class Client {
             writer.write(errors);
             writer.flush();
         }
-        Text.setText("Полигоны успешно загружены\nОшибочных объекты: " + countErrors);
+        Text.setText("Полигоны успешно загружены\nОшибочных объекты: " + countErrors+"\nВ файле log.txt полный список этих объектов");
     }
 }
 
