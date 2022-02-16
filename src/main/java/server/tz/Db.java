@@ -14,10 +14,10 @@ import java.util.UUID;
 public class Db {
 
     public Connection connect() throws SQLException {
-        return DriverManager.getConnection("jdbc:postgresql://localhost:5432/TEST", "postgres", "sp");
+        return DriverManager.getConnection("jdbc:postgresql://bdserv:5432/novouralskiy_1810", "postgres", "bLtybc84$");
     }
 
-    public List<Robject> getConnect() throws SQLException, XPathExpressionException, ParserConfigurationException, IOException, SAXException {
+    public List<Robject> getConnect() throws Exception {
         ResultSet resultSet;
         List<Robject> robjects = new ArrayList<Robject>();
         Connection connection = connect();
@@ -28,10 +28,11 @@ public class Db {
             Robject robject = new Robject();
             robject.setObjectId(UUID.fromString(resultSet.getString("object_id")));
             robject.setCoordinates(resultSet.getString("coordinates"));
-            if (resultSet.getObject("geom") != null) {
+            try {
                 robject.setGeom(new MultiPolygon(resultSet.getString("geom")));
-            } else {
-                robject.setGeom(new MultiPolygon());
+            }
+            catch (Exception e) {
+                throw new Exception("Ошибка при создании геометрии: "+e);
             }
             robjects.add(robject);
         }

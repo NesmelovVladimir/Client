@@ -52,7 +52,7 @@ public class Client {
             items.addAll(robjects);
             table.setItems(items);
         } catch (Exception e) {
-            Text.setText("Ошибка при получении данных из базы:" + e);
+            Text.setText("Ошибка при получении данных из базы\n"+e);
         }
     }
 
