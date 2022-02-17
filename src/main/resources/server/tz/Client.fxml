@@ -15,7 +15,7 @@
     </padding>
     <TableView fx:id="table">
         <columns>
-            <TableColumn fx:id="objectId" prefWidth="270" text="Договор ID" />
+            <TableColumn fx:id="objectId" prefWidth="270" text="Объекты ID" />
             <TableColumn fx:id="coordinates" prefWidth="300" text="Координаты" />
             <TableColumn fx:id="geom" prefWidth="500" text="Полигон" />
         </columns>
