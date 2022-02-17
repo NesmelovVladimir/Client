@@ -1,29 +1,38 @@
 package server.tz;
 
 import org.postgis.MultiPolygon;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-import java.io.IOException;
+import java.io.FileInputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
+
 
 public class Db {
 
-    public Connection connect() throws SQLException {
-        return DriverManager.getConnection("jdbc:postgresql://localhost:5432/TEST", "postgres", "sp");
+    public Connection connect() throws Exception {
+        Properties properties = new Properties();
+        properties.load(new FileInputStream("app.properties"));
+        try {
+            return DriverManager.getConnection(properties.getProperty("url"), properties.getProperty("user"), properties.getProperty("password"));
+        } catch (Exception e) {
+            throw new Exception("Ошибка связи с базой данных: " + e);
+        }
     }
 
-    public List<Robject> getConnect() throws SQLException, XPathExpressionException, ParserConfigurationException, IOException, SAXException {
+    public List<Robject> getConnect(boolean check) throws Exception {
         ResultSet resultSet;
         List<Robject> robjects = new ArrayList<Robject>();
         Connection connection = connect();
         Statement statement = connection.createStatement();
 
-        resultSet = statement.executeQuery("SELECT object_id, coordinates, ST_AsText(geom) as geom FROM robject WHERE coordinates is not null");
+        if (check) {
+            resultSet = statement.executeQuery("SELECT object_id, coordinates, ST_AsText(geom) as geom FROM robject WHERE coordinates is not null");
+        } else {
+            resultSet = statement.executeQuery("SELECT object_id, coordinates, ST_AsText(geom) as geom FROM robject WHERE coordinates is not null and geom is null");
+        }
         while (resultSet.next()) {
             Robject robject = new Robject();
             robject.setObjectId(UUID.fromString(resultSet.getString("object_id")));
@@ -39,7 +48,7 @@ public class Db {
         return robjects;
     }
 
-    public void updateGeometry(UUID objectId, String geom) throws SQLException {
+    public void updateGeometry(UUID objectId, String geom) throws Exception {
 
         String SQL = String.format("update robject SET geom=ST_GeomFromText('%1$s', 4326) " + "WHERE object_id= '%2$s' ", geom, objectId.toString());
 

@@ -1,9 +1,9 @@
 package server.tz;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -21,6 +21,9 @@ public class Client {
     ObservableList<Robject> items = FXCollections.observableArrayList();
     public List<Robject> robjects;
     public Db db = new Db();
+
+    @FXML
+    public CheckBox checkBox;
 
     @FXML
     private Label Text;
@@ -48,7 +51,7 @@ public class Client {
         geom.setCellValueFactory(new PropertyValueFactory<>("geom"));
 
         try {
-            robjects = db.getConnect();
+            robjects = db.getConnect(checkBox.isSelected());
             items.addAll(robjects);
             table.setItems(items);
         } catch (Exception e) {
@@ -58,27 +61,31 @@ public class Client {
 
     @FXML
     protected void onButtonClickUpdate() throws IOException {
-        String errors = "";
-        Integer countErrors = 0;
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            for (int i = 0; i < robjects.size(); i++) {
-                if (!Objects.equals(robjects.get(i).getGeom(), "")) {
-                    db.updateGeometry(robjects.get(i).getObjectId(), robjects.get(i).getGeom());
-                } else {
-                    countErrors++;
-                    errors = errors + "'" + robjects.get(i).getObjectId().toString() + "'; \n";
+        if (robjects != null && robjects.size() > 0) {
+            String errors = "";
+            Integer countErrors = 0;
+            try {
+                for (int i = 0; i < robjects.size(); i++) {
+                    if (!Objects.equals(robjects.get(i).getGeom(), "")) {
+                        db.updateGeometry(robjects.get(i).getObjectId(), robjects.get(i).getGeom());
+                    } else {
+                        countErrors++;
+                        errors = errors + "'" + robjects.get(i).getObjectId().toString() + "'; \n";
+                    }
                 }
+            } catch (Exception e) {
+                Text.setText("Ошибка отправки данных:" + e);
             }
-        } catch (Exception e) {
-            Text.setText("Ошибка отправки данных:" + e);
+            if (countErrors > 0) {
+                FileWriter writer = new FileWriter("log.txt");
+                writer.write(errors);
+                writer.flush();
+            }
+            Text.setText("Полигоны успешно загружены\nОшибочных объекты: " + countErrors + "\nСписок ошибочных объектов записан в файл log.txt в папке с программой");
         }
-        if (countErrors > 0) {
-            FileWriter writer = new FileWriter("log.txt");
-            writer.write(errors);
-            writer.flush();
+        else {
+            Text.setText("Нет данных для конвертации");
         }
-        Text.setText("Полигоны успешно загружены\nОшибочных объекты: " + countErrors);
     }
 }
 
