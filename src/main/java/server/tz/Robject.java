@@ -46,6 +46,9 @@ public class Robject implements Serializable {
         this.coordinates = coordinates;
     }
 
+    /**
+     * Обработка пустой геометрии полученной из базы
+     */
     public String getGeom() {
         String geometry;
         if (geom == null) {
@@ -56,6 +59,9 @@ public class Robject implements Serializable {
         return geometry;
     }
 
+    /**
+     * Преобразование coordinates в Geom
+     */
     public void setGeom(MultiPolygon geom) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -71,6 +77,9 @@ public class Robject implements Serializable {
         this.geom = geom;
     }
 
+    /**
+     * Метод преобразования XML в координаты WGS 84
+     */
     public static List<List<LatLng>> transformFromXmlToWgs(Node root)
             throws XPathExpressionException {
         List<List<LatLng>> result = new ArrayList<>();
@@ -102,7 +111,9 @@ public class Robject implements Serializable {
         return result;
     }
 
-
+    /**
+     * Метод преобразования Координат WGS84 в геометрию(MultiPolygon)
+     */
     public static MultiPolygon convetToGeometry(List<List<LatLng>> contours) {
         List<Polygon> geometries = new ArrayList<>();
         for (List<LatLng> contur : contours) {
@@ -132,7 +143,9 @@ public class Robject implements Serializable {
         return multiPolygon;
     }
 
-
+    /**
+     * Метод создания точек для MultiPolygon
+     */
     private static Polygon createPolygin(List<org.postgis.Point> points) {
         Point[] pointsArr = points.stream().toArray(Point[]::new);
         Polygon geo = new org.postgis.Polygon(
@@ -143,6 +156,9 @@ public class Robject implements Serializable {
         return geo;
     }
 
+    /**
+     * Метод получения отдельного листа из XML
+     */
     private static Node selectSingleNode(Node node, String xpath) throws XPathExpressionException {
         XPath xPath = XPathFactory.newInstance().newXPath();
 

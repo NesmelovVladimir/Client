@@ -40,7 +40,10 @@ public class Client {
     @FXML
     private TableColumn<Robject, MultiPolygon> geom;
 
-
+    /**
+     * Описание события кнопки "Получить данные"
+     * Получение данных из базы
+     */
     @FXML
     protected void onButtonClickGet() {
         for (int i = 0; i < table.getItems().size(); i++) {
@@ -59,6 +62,10 @@ public class Client {
         }
     }
 
+    /**
+     * Описание события кнопки "Отправить данные"
+     * Обновление поля GEOM в базе
+     */
     @FXML
     protected void onButtonClickUpdate() throws IOException {
         if (robjects != null && robjects.size() > 0) {
@@ -82,8 +89,7 @@ public class Client {
                 writer.flush();
             }
             Text.setText("Полигоны успешно загружены\nОшибочных объекты: " + countErrors + "\nСписок ошибочных объектов записан в файл log.txt в папке с программой");
-        }
-        else {
+        } else {
             Text.setText("Нет данных для конвертации");
         }
     }

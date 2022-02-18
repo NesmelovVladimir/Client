@@ -12,6 +12,9 @@ import java.util.UUID;
 
 public class Db {
 
+    /**
+     * Метод для подключения к базе данных
+     */
     public Connection connect() throws Exception {
         Properties properties = new Properties();
         properties.load(new FileInputStream("app.properties"));
@@ -22,6 +25,9 @@ public class Db {
         }
     }
 
+    /**
+     * Метод получения записей из базы данных
+     */
     public List<Robject> getConnect(boolean check) throws Exception {
         ResultSet resultSet;
         List<Robject> robjects = new ArrayList<Robject>();
@@ -48,6 +54,10 @@ public class Db {
         return robjects;
     }
 
+
+    /**
+     * Метод обновления геометрии в базу данных
+     */
     public void updateGeometry(UUID objectId, String geom) throws Exception {
 
         String SQL = String.format("update robject SET geom=ST_GeomFromText('%1$s', 4326) " + "WHERE object_id= '%2$s' ", geom, objectId.toString());
