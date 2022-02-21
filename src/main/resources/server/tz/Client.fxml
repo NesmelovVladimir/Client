@@ -9,8 +9,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17"
-      fx:controller="server.tz.Client">
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17" fx:controller="server.tz.Client">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
@@ -26,13 +25,13 @@
             <CheckBox fx:id="checkBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="10.0" minWidth="10.0"
                       mnemonicParsing="false" prefHeight="15.0" prefWidth="100.0" text="Перезаписать полигоны"
                       translateX="-185.0"/>
-            <Button minWidth="68.0" onAction="#onButtonClickGet" prefHeight="25.0" prefWidth="165.0"
+            <Button fx:id="getInfo" minWidth="68.0" onAction="#onButtonClickGet" prefHeight="25.0" prefWidth="165.0"
                     text="Получить данные" translateX="-537.0"/>
         </buttons>
         <opaqueInsets>
             <Insets/>
         </opaqueInsets>
     </ButtonBar>
-    <Button onAction="#onButtonClickUpdate" prefHeight="25.0" prefWidth="165.0" text="Отправить данные"/>
+    <Button fx:id="updateInfo" onAction="#onButtonClickUpdate" prefHeight="25.0" prefWidth="165.0" text="Отправить данные" disable="true"/>
     <Label fx:id="Text"/>
 </VBox>
