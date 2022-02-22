@@ -35,6 +35,9 @@ public class Client {
     private Button updateInfo;
 
     @FXML
+    private ProgressIndicator process;
+
+    @FXML
     private TableView<Robject> table;
 
     @FXML
@@ -46,7 +49,6 @@ public class Client {
     @FXML
     private TableColumn<Robject, MultiPolygon> geom;
 
-
     /**
      * Описание события кнопки "Получить данные"
      * Получение данных из базы
@@ -56,6 +58,7 @@ public class Client {
 
         getInfo.setDisable(true);
         updateInfo.setDisable(true);
+        checkBox.setDisable(true);
         for (int i = 0; i < table.getItems().size(); i++) {
             table.getItems().clear();
         }
@@ -67,20 +70,38 @@ public class Client {
 
         Text.textProperty().bind(getData.messageProperty());
 
+        process.progressProperty().bind(getData.progressProperty());
+
         getData.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, new EventHandler<WorkerStateEvent>() {
 
             @Override
             public void handle(WorkerStateEvent t) {
                 robjects = getData.getValue();
                 Text.textProperty().unbind();
-                Text.setText("Загруженно: " + robjects.size() + " Записи(-ей)");
+                Text.setText("Загружено: " + robjects.size() + " Записи(-ей)");
                 items.addAll(robjects);
                 table.setItems(items);
                 getInfo.setDisable(false);
                 updateInfo.setDisable(false);
+                checkBox.setDisable(false);
+            }
+        });
+        getData.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, new EventHandler<WorkerStateEvent>() {
+
+            @Override
+            public void handle(WorkerStateEvent t) {
+                Text.textProperty().unbind();
+                Text.setText("Ошибка"+ getData.getException());
             }
         });
 
+        getData.addEventHandler(WorkerStateEvent.WORKER_STATE_RUNNING, new EventHandler<WorkerStateEvent>() {
+
+            @Override
+            public void handle(WorkerStateEvent t) {
+                process.setVisible(true);
+            }
+        });
         // Start the Task.
         new Thread(getData).start();
     }

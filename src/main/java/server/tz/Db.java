@@ -29,29 +29,30 @@ public class Db {
      * Метод получения записей из базы данных
      */
     public List<Robject> getConnect(boolean check) throws Exception {
-        ResultSet resultSet;
-        List<Robject> robjects = new ArrayList<Robject>();
-        Connection connection = connect();
-        Statement statement = connection.createStatement();
+            ResultSet resultSet;
+            List<Robject> robjects = new ArrayList<Robject>();
+            Connection connection = connect();
+            Statement statement = connection.createStatement();
 
-        if (check) {
-            resultSet = statement.executeQuery("SELECT object_id, coordinates, ST_AsText(geom) as geom FROM robject WHERE coordinates is not null");
-        } else {
-            resultSet = statement.executeQuery("SELECT object_id, coordinates, ST_AsText(geom) as geom FROM robject WHERE coordinates is not null and geom is null");
-        }
-        while (resultSet.next()) {
-            Robject robject = new Robject();
-            robject.setObjectId(UUID.fromString(resultSet.getString("object_id")));
-            robject.setCoordinates(resultSet.getString("coordinates"));
-            if (resultSet.getObject("geom") != null) {
-                robject.setGeom(new MultiPolygon(resultSet.getString("geom")));
+            if (check) {
+                resultSet = statement.executeQuery("SELECT object_id, coordinates, ST_AsText(geom) as geom FROM robject WHERE coordinates is not null");
             } else {
-                robject.setGeom(new MultiPolygon());
+                resultSet = statement.executeQuery("SELECT object_id, coordinates, ST_AsText(geom) as geom FROM robject WHERE coordinates is not null and geom is null");
             }
-            robjects.add(robject);
-        }
-        connection.close();
-        return robjects;
+            while (resultSet.next()) {
+                Robject robject = new Robject();
+                robject.setObjectId(UUID.fromString(resultSet.getString("object_id")));
+                robject.setCoordinates(resultSet.getString("coordinates"));
+                if (resultSet.getObject("geom") != null) {
+                    robject.setGeom(new MultiPolygon(resultSet.getString("geom")));
+                } else {
+                    robject.setGeom(new MultiPolygon());
+                }
+                robjects.add(robject);
+            }
+            connection.close();
+            return robjects;
+
     }
 
 
