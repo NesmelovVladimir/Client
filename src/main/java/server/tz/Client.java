@@ -9,18 +9,16 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.postgis.MultiPolygon;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 public class Client {
 
     ObservableList<Robject> items = FXCollections.observableArrayList();
     public List<Robject> robjects;
-    public Db db = new Db();
     private GetData getData;
+    private UpdateData updateData;
+    private String[] result;
 
     @FXML
     public CheckBox checkBox;
@@ -49,6 +47,9 @@ public class Client {
     @FXML
     private TableColumn<Robject, MultiPolygon> geom;
 
+    @FXML
+    private TableColumn<Robject, MultiPolygon> oldGeom;
+
     /**
      * Описание события кнопки "Получить данные"
      * Получение данных из базы
@@ -65,6 +66,7 @@ public class Client {
         objectId.setCellValueFactory(new PropertyValueFactory<>("objectId"));
         coordinates.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
         geom.setCellValueFactory(new PropertyValueFactory<>("geom"));
+        oldGeom.setCellValueFactory(new PropertyValueFactory<>("oldGeom"));
 
         getData = new GetData(checkBox.isSelected());
 
@@ -82,8 +84,13 @@ public class Client {
                 items.addAll(robjects);
                 table.setItems(items);
                 getInfo.setDisable(false);
-                updateInfo.setDisable(false);
                 checkBox.setDisable(false);
+                if (robjects.size() == 0) {
+                    process.setVisible(false);
+                    updateInfo.setDisable(true);
+                } else {
+                    updateInfo.setDisable(false);
+                }
             }
         });
         getData.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, new EventHandler<WorkerStateEvent>() {
@@ -91,7 +98,7 @@ public class Client {
             @Override
             public void handle(WorkerStateEvent t) {
                 Text.textProperty().unbind();
-                Text.setText("Ошибка"+ getData.getException());
+                Text.setText("Ошибка:" + getData.getException());
             }
         });
 
@@ -106,53 +113,49 @@ public class Client {
         new Thread(getData).start();
     }
 
-        /*
-        for (int i = 0; i < table.getItems().size(); i++) {
-            table.getItems().clear();
-        }
-        objectId.setCellValueFactory(new PropertyValueFactory<>("objectId"));
-        coordinates.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
-        geom.setCellValueFactory(new PropertyValueFactory<>("geom"));
-
-        try {
-            robjects = db.getConnect(checkBox.isSelected());
-            items.addAll(robjects);
-            table.setItems(items);
-        } catch (Exception e) {
-            Text.setText("Ошибка при получении данных из базы:" + e);
-        }*/
-
-
     /**
      * Описание события кнопки "Отправить данные"
      * Обновление поля GEOM в базе
      */
     @FXML
-    protected void onButtonClickUpdate() throws IOException {
-        if (robjects != null && robjects.size() > 0) {
-            String errors = "";
-            Integer countErrors = 0;
-            try {
-                for (int i = 0; i < robjects.size(); i++) {
-                    if (!Objects.equals(robjects.get(i).getGeom(), "")) {
-                        db.updateGeometry(robjects.get(i).getObjectId(), robjects.get(i).getGeom());
-                    } else {
-                        countErrors++;
-                        errors = errors + "'" + robjects.get(i).getObjectId().toString() + "'; \n";
-                    }
-                }
-            } catch (Exception e) {
-                Text.setText("Ошибка отправки данных:" + e);
+    protected void onButtonClickUpdate() {
+        getInfo.setDisable(true);
+        updateInfo.setDisable(true);
+        checkBox.setDisable(true);
+        updateData = new UpdateData(robjects);
+
+        Text.textProperty().bind(updateData.messageProperty());
+        process.progressProperty().bind(updateData.progressProperty());
+
+        updateData.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, new EventHandler<WorkerStateEvent>() {
+
+            @Override
+            public void handle(WorkerStateEvent t) {
+                result = updateData.getValue();
+                Text.textProperty().unbind();
+                Text.setText("Обновлено: " + result[1] + " Записи(-ей)"+"\n"+result[0]);
+
+                getInfo.setDisable(false);
+                checkBox.setDisable(false);
+                updateInfo.setDisable(true);
             }
-            if (countErrors > 0) {
-                FileWriter writer = new FileWriter("log.txt");
-                writer.write(errors);
-                writer.flush();
+        });
+        updateData.addEventHandler(WorkerStateEvent.WORKER_STATE_RUNNING, new EventHandler<WorkerStateEvent>() {
+
+            @Override
+            public void handle(WorkerStateEvent t) {
+                process.setVisible(true);
             }
-            Text.setText("Полигоны успешно загружены\nОшибочных объекты: " + countErrors + "\nСписок ошибочных объектов записан в файл log.txt в папке с программой");
-        } else {
-            Text.setText("Нет данных для конвертации");
-        }
+        });
+        updateData.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, new EventHandler<WorkerStateEvent>() {
+
+            @Override
+            public void handle(WorkerStateEvent t) {
+                Text.textProperty().unbind();
+                Text.setText("Ошибка:" + updateData.getException());
+            }
+        });
+        new Thread(updateData).start();
     }
 }
 

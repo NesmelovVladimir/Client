@@ -17,15 +17,13 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Robject implements Serializable {
     private UUID objectId;
     private String coordinates;
     private MultiPolygon geom;
+    private MultiPolygon oldGeom;
 
     public Robject() {
     }
@@ -48,6 +46,27 @@ public class Robject implements Serializable {
 
     /**
      * Обработка пустой геометрии полученной из базы
+     */
+    public String getOldGeom() {
+        String geometry;
+        if (oldGeom == null) {
+            geometry = "";
+        } else {
+            geometry = oldGeom.toString();
+        }
+        return geometry;
+    }
+
+    public void setOldGeom(MultiPolygon oldGeom) {
+        if (oldGeom.isEmpty()) {
+            this.oldGeom = null;
+        } else {
+            this.oldGeom = oldGeom;
+        }
+    }
+
+    /**
+     * Обработка пустой геометрии, которую не получилось преобразовать из coordinates
      */
     public String getGeom() {
         String geometry;

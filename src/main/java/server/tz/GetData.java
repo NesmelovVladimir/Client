@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Задача на получения данных из базы
+ */
 public class GetData extends Task<List<Robject>> {
 
     public boolean check;
@@ -17,7 +20,6 @@ public class GetData extends Task<List<Robject>> {
     public Statement statement;
     public Connection connection;
     List<Robject> robjects = new ArrayList<>();
-    public String error = "";
 
     public GetData(boolean check) {
         this.check = check;
@@ -43,10 +45,11 @@ public class GetData extends Task<List<Robject>> {
                 robject.setObjectId(UUID.fromString(resultSet.getString("object_id")));
                 robject.setCoordinates(resultSet.getString("coordinates"));
                 if (resultSet.getObject("geom") != null) {
-                    robject.setGeom(new MultiPolygon(resultSet.getString("geom")));
+                    robject.setOldGeom(new MultiPolygon(resultSet.getString("geom")));
                 } else {
-                    robject.setGeom(new MultiPolygon());
+                    robject.setOldGeom(new MultiPolygon());
                 }
+                robject.setGeom(new MultiPolygon());
                 this.message(i, resultSet.getInt("count"));
                 this.updateProgress(i, resultSet.getInt("count"));
                 i++;
@@ -56,13 +59,13 @@ public class GetData extends Task<List<Robject>> {
             return robjects;
         }
         catch (Exception e) {
-        throw new Exception("Проверка" + e);
+        throw new Exception("\nПроизошла ошибка при получении данных из базы: " + e);
         }
     }
 
-    private void message(int currentState, int allInfo) {
+    private void message(int currentState, int allInfo) throws InterruptedException {
         this.updateMessage("Загружено: " + currentState + " из " + allInfo);
-        //Thread.sleep(500);
+        Thread.sleep(500);
     }
 
 }
