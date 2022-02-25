@@ -15,9 +15,7 @@ import java.util.UUID;
  */
 public class UpdateData extends Task<String[]> {
 
-    public boolean check;
     public Db db = new Db();
-    public Statement statement;
     public Connection connection;
     public List<Robject> robjects;
 
@@ -28,34 +26,34 @@ public class UpdateData extends Task<String[]> {
 
     @Override
     protected String[] call() throws Exception {
-        String errors = "";
+        StringBuilder errors = new StringBuilder();
 
-        Integer countErrors = countGeom(robjects);
+        int countErrors = countGeom(robjects);
         for (int i = 0; i < robjects.size(); i++) {
             if (!Objects.equals(robjects.get(i).getGeom(), "")) {
                 updateGeometry(robjects.get(i).getObjectId(), robjects.get(i).getGeom());
                 this.message(i, robjects.size());
-                this.updateProgress(i, countErrors);
+                this.updateProgress(i, robjects.size()-countErrors);
             } else {
-                errors = errors + "'" + robjects.get(i).getObjectId().toString() + "'; \n";
+                errors.append("'").append(robjects.get(i).getObjectId().toString()).append("'; \n");
             }
         }
         if (countErrors > 0) {
             FileWriter writer = new FileWriter("log.txt");
-            writer.write(errors);
+            writer.write(errors.toString());
             writer.flush();
         }
 
         String[] result = new String [2];
         result[0] = "Ошибочных объекты: " + countErrors + "\nСписок ошибочных объектов записан в файл log.txt в папке с программой";
         countErrors = robjects.size()-countErrors;
-        result[1]=countErrors.toString();
+        result[1]= Integer.toString(countErrors);
         return result;
     }
 
-    private void message(int currentState, int allInfo) throws InterruptedException {
+    private void message(int currentState, int allInfo) {
         this.updateMessage("Обновлено: " + currentState + " из " + allInfo);
-        Thread.sleep(500);
+        //Thread.sleep(500);
     }
 
     /**
@@ -76,8 +74,8 @@ public class UpdateData extends Task<String[]> {
      */
     public int countGeom(List<Robject> robjects) {
         int countErrors = 0;
-        for (int i = 0; i < robjects.size(); i++) {
-            if (Objects.equals(robjects.get(i).getGeom(), "")) {
+        for (Robject robject : robjects) {
+            if (Objects.equals(robject.getGeom(), "")) {
                 countErrors++;
             }
         }

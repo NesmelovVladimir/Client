@@ -65,7 +65,7 @@ public class GetData extends Task<List<Robject>> {
 
     private void message(int currentState, int allInfo) throws InterruptedException {
         this.updateMessage("Загружено: " + currentState + " из " + allInfo);
-        Thread.sleep(500);
+        //Thread.sleep(500);
     }
 
 }
