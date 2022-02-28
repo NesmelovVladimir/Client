@@ -19,6 +19,7 @@ public class Client {
     private GetData getData;
     private UpdateData updateData;
     private String[] result;
+    private Thread thread;
 
     @FXML
     public CheckBox checkBox;
@@ -109,8 +110,9 @@ public class Client {
                 process.setVisible(true);
             }
         });
-        // Start the Task.
-        new Thread(getData).start();
+       thread = new Thread(getData);
+       thread.setDaemon(true);
+       thread.start();
     }
 
     /**
@@ -155,7 +157,9 @@ public class Client {
                 Text.setText("Ошибка:" + updateData.getException());
             }
         });
-        new Thread(updateData).start();
+        thread = new Thread(updateData);
+        thread.setDaemon(true);
+        thread.start();
     }
 }
 
