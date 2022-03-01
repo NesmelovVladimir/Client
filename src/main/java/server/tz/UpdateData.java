@@ -32,7 +32,7 @@ public class UpdateData extends Task<String[]> {
             if (!Objects.equals(robjects.get(i).getGeom(), "")) {
                 updateGeometry(robjects.get(i).getObjectId(), robjects.get(i).getGeom());
                 this.message(i, robjects.size());
-                this.updateProgress(i, robjects.size()-countErrors);
+                this.updateProgress(i, robjects.size() - countErrors);
             } else {
                 errors.append("'").append(robjects.get(i).getObjectId().toString()).append("'; \n");
             }
@@ -43,16 +43,15 @@ public class UpdateData extends Task<String[]> {
             writer.flush();
         }
 
-        String[] result = new String [2];
+        String[] result = new String[2];
         result[0] = "Ошибочных объекты: " + countErrors + "\nСписок ошибочных объектов записан в файл log.txt в папке с программой";
-        countErrors = robjects.size()-countErrors;
-        result[1]= Integer.toString(countErrors);
+        countErrors = robjects.size() - countErrors;
+        result[1] = Integer.toString(countErrors);
         return result;
     }
 
     private void message(int currentState, int allInfo) {
         this.updateMessage("Обновлено: " + currentState + " из " + allInfo);
-        //Thread.sleep(500);
     }
 
     /**
@@ -69,7 +68,7 @@ public class UpdateData extends Task<String[]> {
     }
 
     /**
-     *Метод получения количества объектов с геометрией
+     * Метод получения количества объектов с геометрией
      */
     public int countGeom(List<Robject> robjects) {
         int countErrors = 0;

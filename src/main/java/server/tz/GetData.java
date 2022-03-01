@@ -57,15 +57,13 @@ public class GetData extends Task<List<Robject>> {
             }
             connection.close();
             return robjects;
-        }
-        catch (Exception e) {
-        throw new Exception("\nПроизошла ошибка при получении данных из базы: " + e);
+        } catch (Exception e) {
+            throw new Exception("\nПроизошла ошибка при получении данных из базы: " + e);
         }
     }
 
     private void message(int currentState, int allInfo) throws InterruptedException {
         this.updateMessage("Загружено: " + currentState + " из " + allInfo);
-        Thread.sleep(5000);
     }
 
 }

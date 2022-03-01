@@ -110,9 +110,9 @@ public class Client {
                 process.setVisible(true);
             }
         });
-       thread = new Thread(getData);
-       thread.setDaemon(true);
-       thread.start();
+        thread = new Thread(getData);
+        thread.setDaemon(true);
+        thread.start();
     }
 
     /**
@@ -135,7 +135,7 @@ public class Client {
             public void handle(WorkerStateEvent t) {
                 result = updateData.getValue();
                 Text.textProperty().unbind();
-                Text.setText("Обновлено: " + result[1] + " Записи(-ей)"+"\n"+result[0]);
+                Text.setText("Обновлено: " + result[1] + " Записи(-ей)" + "\n" + result[0]);
 
                 getInfo.setDisable(false);
                 checkBox.setDisable(false);
