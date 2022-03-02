@@ -10,29 +10,35 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" prefHeight="800.0" prefWidth="1280.0" spacing="20.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="server.tz.Client">
+<VBox alignment="CENTER" prefHeight="800.0" prefWidth="1280.0" spacing="20.0" xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="server.tz.Client">
     <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
     <TableView fx:id="table">
         <columns>
-            <TableColumn fx:id="objectId" prefWidth="270" text="Объекты ID" />
-            <TableColumn fx:id="coordinates" prefWidth="300" text="Координаты" />
-            <TableColumn fx:id="geom" prefWidth="342.0" text="Новый полигон" />
-         <TableColumn fx:id="oldGeom" prefWidth="327.0" text="Старый полигон" />
+            <TableColumn fx:id="objectId" prefWidth="270" text="Объекты ID"/>
+            <TableColumn fx:id="coordinates" prefWidth="300" text="Координаты"/>
+            <TableColumn fx:id="geom" prefWidth="342.0" text="Новый полигон"/>
+            <TableColumn fx:id="oldGeom" prefWidth="327.0" text="Старый полигон"/>
         </columns>
     </TableView>
-   <Pane prefHeight="44.0" prefWidth="1030.0">
-      <children>
-            <Button fx:id="getInfo" layoutX="538.0" layoutY="10.0" minWidth="68.0" onAction="#onButtonClickGet" prefHeight="25.0" prefWidth="165.0" text="Получить данные" />
-            <CheckBox fx:id="checkBox" layoutX="716.0" layoutY="15.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="10.0" minWidth="10.0" mnemonicParsing="false" prefHeight="15.0" prefWidth="165.0" text="Перезаписать полигоны" />
-      </children>
-   </Pane>
-   <Pane prefHeight="54.0" prefWidth="1072.0">
-      <children>
-          <Button fx:id="updateInfo" disable="true" layoutX="538.0" layoutY="15.0" onAction="#onButtonClickUpdate" prefHeight="25.0" prefWidth="165.0" text="Отправить данные" />
-          <ProgressIndicator fx:id="process" layoutX="495.0" layoutY="10.0" prefHeight="38.0" prefWidth="40.0" progress="1.0" visible="false" />
-      </children>
-   </Pane>
-    <Label fx:id="Text" />
+    <Pane prefHeight="44.0" prefWidth="1030.0">
+        <children>
+            <Button fx:id="getInfo" layoutX="538.0" layoutY="10.0" minWidth="68.0" onAction="#onButtonClickGet"
+                    prefHeight="25.0" prefWidth="165.0" text="Получить данные"/>
+            <CheckBox fx:id="checkBox" layoutX="716.0" layoutY="15.0" maxHeight="-Infinity" maxWidth="-Infinity"
+                      minHeight="10.0" minWidth="10.0" mnemonicParsing="false" prefHeight="15.0" prefWidth="165.0"
+                      text="Перезаписать полигоны"/>
+        </children>
+    </Pane>
+    <Pane prefHeight="54.0" prefWidth="1072.0">
+        <children>
+            <Button fx:id="updateInfo" disable="true" layoutX="538.0" layoutY="15.0" onAction="#onButtonClickUpdate"
+                    prefHeight="25.0" prefWidth="165.0" text="Отправить данные"/>
+            <ProgressIndicator fx:id="process" layoutX="495.0" layoutY="10.0" prefHeight="38.0" prefWidth="40.0"
+                               progress="1.0" visible="false"/>
+        </children>
+    </Pane>
+    <Label fx:id="Text"/>
 </VBox>
