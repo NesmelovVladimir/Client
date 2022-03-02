@@ -100,6 +100,8 @@ public class Client {
             public void handle(WorkerStateEvent t) {
                 Text.textProperty().unbind();
                 Text.setText("Ошибка:" + getData.getException());
+                getInfo.setDisable(false);
+                checkBox.setDisable(false);
             }
         });
 
@@ -155,6 +157,9 @@ public class Client {
             public void handle(WorkerStateEvent t) {
                 Text.textProperty().unbind();
                 Text.setText("Ошибка:" + updateData.getException());
+                getInfo.setDisable(false);
+                checkBox.setDisable(false);
+                updateInfo.setDisable(false);
             }
         });
         thread = new Thread(updateData);

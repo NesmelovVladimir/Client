@@ -26,15 +26,15 @@ public class UpdateData extends Task<String[]> {
     @Override
     protected String[] call() throws Exception {
         StringBuilder errors = new StringBuilder();
-
+        connection = db.connect();
         int countErrors = countGeom(robjects);
         for (int i = 0; i < robjects.size(); i++) {
             if (!Objects.equals(robjects.get(i).getGeom(), "")) {
                 updateGeometry(robjects.get(i).getObjectId(), robjects.get(i).getGeom());
                 this.message(i, robjects.size());
-                this.updateProgress(i, robjects.size() - countErrors);
+                this.updateProgress(i, robjects.size() - countErrors - 1);
             } else {
-                errors.append("'").append(robjects.get(i).getObjectId().toString()).append("'; \n");
+                errors.append("'").append(robjects.get(i).getObjectId().toString()).append("', \n");
             }
         }
         if (countErrors > 0) {
@@ -47,6 +47,7 @@ public class UpdateData extends Task<String[]> {
         result[0] = "Ошибочных объекты: " + countErrors + "\nСписок ошибочных объектов записан в файл log.txt в папке с программой";
         countErrors = robjects.size() - countErrors;
         result[1] = Integer.toString(countErrors);
+        connection.close();
         return result;
     }
 
@@ -61,10 +62,10 @@ public class UpdateData extends Task<String[]> {
 
         String SQL = String.format("update robject SET geom=ST_GeomFromText('%1$s', 4326) " + "WHERE object_id= '%2$s' ", geom, objectId.toString());
 
-        connection = db.connect();
         PreparedStatement prepareStatement = connection.prepareStatement(SQL);
 
         prepareStatement.executeUpdate();
+
     }
 
     /**
