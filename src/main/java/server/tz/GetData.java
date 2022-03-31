@@ -35,9 +35,15 @@ public class GetData extends Task<List<Robject>> {
 
 
             if (check) {
-                resultSet = statement.executeQuery("SELECT object_id, coordinates, ST_AsText(geom) as geom, (SELECT count(object_id) as count FROM robject WHERE coordinates is not null) as count FROM robject WHERE coordinates is not null");
+                resultSet = statement.executeQuery(
+                        "SELECT object_id, coordinates, ST_AsText(geom) as geom, (SELECT count(object_id) as count " +
+                                "FROM robject WHERE coordinates is not null) as count FROM robject " +
+                                "WHERE coordinates is not null");
             } else {
-                resultSet = statement.executeQuery("SELECT object_id, coordinates, ST_AsText(geom) as geom, (SELECT count(object_id) as count FROM robject WHERE coordinates is not null and geom is null) as count FROM robject WHERE coordinates is not null and geom is null");
+                resultSet = statement.executeQuery(
+                        "SELECT object_id, coordinates, ST_AsText(geom) as geom, (SELECT count(object_id) as count " +
+                                "FROM robject WHERE coordinates is not null and geom is null) as count " +
+                                "FROM robject WHERE coordinates is not null and geom is null");
             }
             int i = 1;
             while (resultSet.next()) {
