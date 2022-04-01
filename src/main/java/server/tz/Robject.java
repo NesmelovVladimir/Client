@@ -103,7 +103,12 @@ public class Robject implements Serializable {
             throws XPathExpressionException {
         List<List<LatLng>> result = new ArrayList<>();
 
-        Node outline = selectSingleNode(root, "КоординатыУчастка/Контур");
+        Node outline;
+        if (root.getFirstChild().getNodeName().equals("EntitySpatial")) {
+            outline = selectSingleNode(root, "EntitySpatial/ns3:SpatialElement");
+        } else {
+            outline = selectSingleNode(root, "КоординатыУчастка/Контур");
+        }
 
         for (int i = 0; i < outline.getChildNodes().getLength(); i++) {
             Node outlineElement = outline.getChildNodes().item(i);

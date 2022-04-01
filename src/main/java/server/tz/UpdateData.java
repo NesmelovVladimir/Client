@@ -17,6 +17,7 @@ public class UpdateData extends Task<String[]> {
     public Db db = new Db();
     public Connection connection;
     public List<Robject> robjects;
+    public int processCount = 1;
 
 
     public UpdateData(List<Robject> robjects) {
@@ -28,7 +29,31 @@ public class UpdateData extends Task<String[]> {
         StringBuilder errors = new StringBuilder();
         connection = db.connect();
         int countErrors = countGeom(robjects);
-        for (int i = 0; i < robjects.size(); i++) {
+        int finalCountErrors = countErrors;
+        robjects.parallelStream().forEach(robject -> {
+            if (!Objects.equals(robject.getGeom(), "")) {
+                try {
+                    updateGeometry(robject.getObjectId(), robject.getGeom());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                this.message(processCount, robjects.size());
+                this.updateProgress(processCount, robjects.size() - finalCountErrors - 1);
+            } else {
+                errors.append("'").append(robject.getObjectId().toString()).append("', \n");
+            }
+        });
+        /*for (Robject robject : robjects) {
+            if (!Objects.equals(robject.getGeom(), "")) {
+                updateGeometry(robject.getObjectId(), robject.getGeom());
+                this.message(processCount, robjects.size());
+                this.updateProgress(processCount, robjects.size() - countErrors - 1);
+            } else {
+                errors.append("'").append(robject.getObjectId().toString()).append("', \n");
+            }
+        }*/
+
+        /*for (int i = 0; i < robjects.size(); i++) {
             if (!Objects.equals(robjects.get(i).getGeom(), "")) {
                 updateGeometry(robjects.get(i).getObjectId(), robjects.get(i).getGeom());
                 this.message(i, robjects.size());
@@ -36,7 +61,7 @@ public class UpdateData extends Task<String[]> {
             } else {
                 errors.append("'").append(robjects.get(i).getObjectId().toString()).append("', \n");
             }
-        }
+        }*/
         if (countErrors > 0) {
             FileWriter writer = new FileWriter("log.txt");
             writer.write(errors.toString());
