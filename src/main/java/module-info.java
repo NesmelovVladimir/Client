@@ -4,6 +4,7 @@ module server.tz {
     requires java.sql;
     requires postgis.geometry;
     requires java.desktop;
+    requires proj4j;
 
 
     opens server.tz to javafx.fxml;

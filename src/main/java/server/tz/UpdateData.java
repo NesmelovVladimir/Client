@@ -29,7 +29,7 @@ public class UpdateData extends Task<String[]> {
         StringBuilder errors = new StringBuilder();
         connection = db.connect();
         int countErrors = countGeom(robjects);
-        int finalCountErrors = countErrors;
+        int objectCount = robjects.size() - countGeom(robjects);
         robjects.parallelStream().forEach(robject -> {
             if (!Objects.equals(robject.getGeom(), "")) {
                 try {
@@ -38,7 +38,8 @@ public class UpdateData extends Task<String[]> {
                     e.printStackTrace();
                 }
                 this.message(processCount, robjects.size());
-                this.updateProgress(processCount, robjects.size() - finalCountErrors - 1);
+                this.updateProgress(processCount, objectCount);
+                processCount++;
             } else {
                 errors.append("'").append(robject.getObjectId().toString()).append("', \n");
             }
@@ -47,7 +48,8 @@ public class UpdateData extends Task<String[]> {
             if (!Objects.equals(robject.getGeom(), "")) {
                 updateGeometry(robject.getObjectId(), robject.getGeom());
                 this.message(processCount, robjects.size());
-                this.updateProgress(processCount, robjects.size() - countErrors - 1);
+                this.updateProgress(processCount, objectCount);
+                processCount++;
             } else {
                 errors.append("'").append(robject.getObjectId().toString()).append("', \n");
             }

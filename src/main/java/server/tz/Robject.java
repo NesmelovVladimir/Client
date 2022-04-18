@@ -1,9 +1,10 @@
 package server.tz;
 
-import org.postgis.LinearRing;
-import org.postgis.MultiPolygon;
-import org.postgis.Point;
-import org.postgis.Polygon;
+import org.osgeo.proj4j.BasicCoordinateTransform;
+import org.osgeo.proj4j.CRSFactory;
+import org.osgeo.proj4j.CoordinateReferenceSystem;
+import org.osgeo.proj4j.ProjCoordinate;
+import org.postgis.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -17,12 +18,15 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class Robject implements Serializable {
     private UUID objectId;
     private String coordinates;
-    private MultiPolygon geom;
+    private GeometryCollection geom;
     private MultiPolygon oldGeom;
 
     public Robject() {
@@ -81,7 +85,7 @@ public class Robject implements Serializable {
     /**
      * Преобразование coordinates в Geom
      */
-    public void setGeom(MultiPolygon geom) {
+    public void setGeom(GeometryCollection geom) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder;
@@ -100,16 +104,19 @@ public class Robject implements Serializable {
      * Метод преобразования XML в координаты WGS 84
      */
     public static List<List<LatLng>> transformFromXmlToWgs(Node root)
-            throws XPathExpressionException {
+            throws Exception {
         List<List<LatLng>> result = new ArrayList<>();
 
         Node outline;
+        String coordinateSystem = null;
         if (root.getFirstChild().getNodeName().equals("EntitySpatial")) {
-            outline = selectSingleNode(root, "EntitySpatial/ns3:SpatialElement");
+            Node outlineElement = root.getChildNodes().item(0);
+            coordinateSystem = outlineElement.getAttributes().getNamedItem("EntSys").getNodeValue();
+            outline = selectSingleNode(root, "EntitySpatial/SpatialElement");
         } else {
             outline = selectSingleNode(root, "КоординатыУчастка/Контур");
         }
-
+        //Добавить конвертацию координать от системы координат
         for (int i = 0; i < outline.getChildNodes().getLength(); i++) {
             Node outlineElement = outline.getChildNodes().item(i);
             if (!outlineElement.hasChildNodes()) {
@@ -123,11 +130,27 @@ public class Robject implements Serializable {
                 if (pointNode.getAttributes() == null) {
                     continue;
                 }
+                ProjCoordinate coordSrc = new ProjCoordinate(
+                        Double.parseDouble(pointNode.getAttributes().getNamedItem("Y").getNodeValue().replace(",", ".")),
+                        Double.parseDouble(pointNode.getAttributes().getNamedItem("X").getNodeValue().replace(",", "."))
+                );
+                if (coordinateSystem != null) {
+                    CRSFactory crsFactory = new CRSFactory();
+                    Db db = new Db();
+                    Map<String, String> coodrinateSystemMap = db.getCoodrinateSystem();
+                    CoordinateReferenceSystem crsSource = Robject
+                            .createReferenceSystemFromMskName(coodrinateSystemMap.get(coordinateSystem));
+                    CoordinateReferenceSystem crsTarget = crsFactory.createFromParameters("WGS84",
+                            "+proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees");
 
-                points.add(new LatLng(
-                        Double.parseDouble(pointNode.getAttributes().getNamedItem("Y").getNodeValue()),
-                        Double.parseDouble(pointNode.getAttributes().getNamedItem("X").getNodeValue())
-                ));
+                    BasicCoordinateTransform t = new BasicCoordinateTransform(crsSource, crsTarget);
+                    ProjCoordinate coordTrg = new ProjCoordinate();
+
+                    t.transform(coordSrc, coordTrg);
+                    points.add(new LatLng(coordTrg.y, coordTrg.x));
+                } else {
+                    points.add(new LatLng(coordSrc.y, coordSrc.x));
+                }
             }
             result.add(points);
         }
@@ -138,46 +161,33 @@ public class Robject implements Serializable {
     /**
      * Метод преобразования Координат WGS84 в геометрию(MultiPolygon)
      */
-    public static MultiPolygon convetToGeometry(List<List<LatLng>> contours) {
-        List<Polygon> geometries = new ArrayList<>();
+    public static GeometryCollection convetToGeometry(List<List<LatLng>> contours) {
+        GeometryCollection geometry = new GeometryCollection();
         for (List<LatLng> contur : contours) {
-            List<org.postgis.Point> points = new ArrayList<>();
             if (contur.size() == 1) {
-                for (int i = 0; i < 4; i++) {
-                    points.add(new Point(contur.get(0).getLng(), contur.get(0).getLat()));
+                Point point = new Point(contur.get(0).getLng(), contur.get(0).getLat());
+                geometry = new GeometryCollection(new Point[]{point});
+            } else if (contur.get(0).getLng() != contur.get(contur.size() - 1).getLng() &&
+                    contur.get(0).getLat() != contur.get(contur.size() - 1).getLat()) {
+                List<Point> linePoints = new ArrayList<>();
+                for (LatLng count : contur) {
+                    linePoints.add(new Point(count.getLng(), count.getLat()));
                 }
-            } else {
-                for (LatLng latLng : contur) {
-                    points.add(new Point(latLng.getLng(), latLng.getLat()));
+                LineString lineString = new LineString(linePoints.toArray(Point[]::new));
+                geometry = new GeometryCollection(new LineString[]{lineString});
+
+            } else if (contur.get(0).getLng() == contur.get(contur.size() - 1).getLng() &&
+                    contur.get(0).getLat() == contur.get(contur.size() - 1).getLat()) {
+                List<Point> polygonPoints = new ArrayList<>();
+                for (LatLng count : contur) {
+                    polygonPoints.add(new Point(count.getLng(), count.getLat()));
                 }
-                if (contur.get(0).equals(contur.get(contur.size() - 1))) {
-                } else {
-                    List<org.postgis.Point> pointList = new ArrayList<>();
-                    pointList.addAll(points);
-                    Collections.reverse(points);
-                    pointList.addAll(points);
-                    points = pointList;
-                }
+                Point[] pointsArr = polygonPoints.toArray(Point[]::new);
+                Polygon polygon = new org.postgis.Polygon(new LinearRing[]{new LinearRing(pointsArr)});
+                geometry = new GeometryCollection(new Polygon[]{polygon});
             }
-            geometries.add(createPolygin(points));
         }
-
-        MultiPolygon multiPolygon = new MultiPolygon(geometries.stream().toArray(org.postgis.Polygon[]::new));
-
-        return multiPolygon;
-    }
-
-    /**
-     * Метод создания точек для MultiPolygon
-     */
-    private static Polygon createPolygin(List<org.postgis.Point> points) {
-        Point[] pointsArr = points.stream().toArray(Point[]::new);
-        Polygon geo = new org.postgis.Polygon(
-                new LinearRing[]{
-                        new LinearRing(pointsArr)
-                }
-        );
-        return geo;
+        return geometry;
     }
 
     /**
@@ -187,6 +197,11 @@ public class Robject implements Serializable {
         XPath xPath = XPathFactory.newInstance().newXPath();
 
         return ((NodeList) xPath.evaluate(xpath, node, XPathConstants.NODESET)).item(0);
+    }
+
+    public static CoordinateReferenceSystem createReferenceSystemFromMskName(String nameMsk) {
+        CRSFactory crsFactory = new CRSFactory();
+        return crsFactory.createFromParameters(nameMsk, MskParams.getValues().get(nameMsk));
     }
 }
 

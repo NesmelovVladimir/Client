@@ -1,14 +1,14 @@
 package server.tz;
 
 import javafx.concurrent.Task;
+import org.postgis.GeometryCollection;
 import org.postgis.MultiPolygon;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Задача на получения данных из базы
@@ -55,7 +55,7 @@ public class GetData extends Task<List<Robject>> {
                 } else {
                     robject.setOldGeom(new MultiPolygon());
                 }
-                robject.setGeom(new MultiPolygon());
+                robject.setGeom(new GeometryCollection());
                 this.message(i, resultSet.getInt("count"));
                 this.updateProgress(i, resultSet.getInt("count"));
                 i++;
@@ -68,8 +68,7 @@ public class GetData extends Task<List<Robject>> {
         }
     }
 
-    private void message(int currentState, int allInfo) throws InterruptedException {
+    private void message(int currentState, int allInfo) {
         this.updateMessage("Загружено: " + currentState + " из " + allInfo);
     }
-
 }

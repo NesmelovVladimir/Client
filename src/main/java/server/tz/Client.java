@@ -117,7 +117,7 @@ public class Client {
         updateData.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, t -> {
             result = updateData.getValue();
             Text.textProperty().unbind();
-            Text.setText("Обновлено: " + result[1] + " Записи(-ей)" + "\n" + result[0]);
+            Text.setText("Обновлено: " + result[1] + " Записи(-ей) из " + robjects.size() + "\n" + result[0]);
             getInfo.setDisable(false);
             checkBox.setDisable(false);
             updateInfo.setDisable(true);
