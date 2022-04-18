@@ -27,7 +27,7 @@ public class Robject implements Serializable {
     private UUID objectId;
     private String coordinates;
     private GeometryCollection geom;
-    private MultiPolygon oldGeom;
+    private String oldGeom;
 
     public Robject() {
     }
@@ -61,7 +61,7 @@ public class Robject implements Serializable {
         return geometry;
     }
 
-    public void setOldGeom(MultiPolygon oldGeom) {
+    public void setOldGeom(String oldGeom) {
         if (oldGeom.isEmpty()) {
             this.oldGeom = null;
         } else {
@@ -85,14 +85,14 @@ public class Robject implements Serializable {
     /**
      * Преобразование coordinates в Geom
      */
-    public void setGeom(GeometryCollection geom) {
+    public void setGeom(GeometryCollection geom, Map<String, String> coodrinateSystemMap) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder;
             builder = factory.newDocumentBuilder();
             Document document = builder.parse(new InputSource(new StringReader(coordinates)));
             List<List<LatLng>> result;
-            result = transformFromXmlToWgs(document);
+            result = transformFromXmlToWgs(document, coodrinateSystemMap);
             geom = convetToGeometry(result);
         } catch (Exception e) {
             geom = null;
@@ -103,7 +103,7 @@ public class Robject implements Serializable {
     /**
      * Метод преобразования XML в координаты WGS 84
      */
-    public static List<List<LatLng>> transformFromXmlToWgs(Node root)
+    public static List<List<LatLng>> transformFromXmlToWgs(Node root, Map<String, String> coodrinateSystemMap)
             throws Exception {
         List<List<LatLng>> result = new ArrayList<>();
 
@@ -136,8 +136,6 @@ public class Robject implements Serializable {
                 );
                 if (coordinateSystem != null) {
                     CRSFactory crsFactory = new CRSFactory();
-                    Db db = new Db();
-                    Map<String, String> coodrinateSystemMap = db.getCoodrinateSystem();
                     CoordinateReferenceSystem crsSource = Robject
                             .createReferenceSystemFromMskName(coodrinateSystemMap.get(coordinateSystem));
                     CoordinateReferenceSystem crsTarget = crsFactory.createFromParameters("WGS84",

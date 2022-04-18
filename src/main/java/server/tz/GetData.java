@@ -32,7 +32,7 @@ public class GetData extends Task<List<Robject>> {
             ResultSet resultSet;
             connection = db.connect();
             statement = connection.createStatement();
-
+            Map<String, String> coodrinateSystemMap = db.getCoodrinateSystem();
 
             if (check) {
                 resultSet = statement.executeQuery(
@@ -51,11 +51,11 @@ public class GetData extends Task<List<Robject>> {
                 robject.setObjectId(UUID.fromString(resultSet.getString("object_id")));
                 robject.setCoordinates(resultSet.getString("coordinates"));
                 if (resultSet.getObject("geom") != null) {
-                    robject.setOldGeom(new MultiPolygon(resultSet.getString("geom")));
+                    robject.setOldGeom(resultSet.getString("geom"));
                 } else {
-                    robject.setOldGeom(new MultiPolygon());
+                    robject.setOldGeom("");
                 }
-                robject.setGeom(new GeometryCollection());
+                robject.setGeom(new GeometryCollection(),coodrinateSystemMap);
                 this.message(i, resultSet.getInt("count"));
                 this.updateProgress(i, resultSet.getInt("count"));
                 i++;
