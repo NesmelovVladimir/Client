@@ -1,12 +1,9 @@
 package server.tz;
 
 import javafx.concurrent.Task;
-import org.postgis.GeometryCollection;
-import org.postgis.MultiPolygon;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 
@@ -55,7 +52,7 @@ public class GetData extends Task<List<Robject>> {
                 } else {
                     robject.setOldGeom("");
                 }
-                robject.setGeom(new GeometryCollection(),coodrinateSystemMap);
+                robject.setGeom(coodrinateSystemMap);
                 this.message(i, resultSet.getInt("count"));
                 this.updateProgress(i, resultSet.getInt("count"));
                 i++;

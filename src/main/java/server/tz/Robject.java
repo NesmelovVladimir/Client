@@ -56,7 +56,7 @@ public class Robject implements Serializable {
         if (oldGeom == null) {
             geometry = "";
         } else {
-            geometry = oldGeom.toString();
+            geometry = oldGeom;
         }
         return geometry;
     }
@@ -85,7 +85,8 @@ public class Robject implements Serializable {
     /**
      * Преобразование coordinates в Geom
      */
-    public void setGeom(GeometryCollection geom, Map<String, String> coodrinateSystemMap) {
+    public void setGeom(Map<String, String> coodrinateSystemMap) {
+        GeometryCollection geom;
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder;
@@ -145,9 +146,9 @@ public class Robject implements Serializable {
                     ProjCoordinate coordTrg = new ProjCoordinate();
 
                     t.transform(coordSrc, coordTrg);
-                    points.add(new LatLng(coordTrg.y, coordTrg.x));
+                    points.add(new LatLng(coordTrg.x, coordTrg.y));
                 } else {
-                    points.add(new LatLng(coordSrc.y, coordSrc.x));
+                    points.add(new LatLng(coordSrc.x, coordSrc.y));
                 }
             }
             result.add(points);
